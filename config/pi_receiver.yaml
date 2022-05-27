@@ -1,0 +1,7 @@
+# See documentation for dsl::progressive_imagery::ManagerReceiverConfiguration
+decompressor_defaults: # dsl::progressive_imagery::ProgressiveDecompressorConfiguration
+  filename_prefix: "image_rx_"
+  rename_partial: true
+
+received_status:
+  number_of_images_reported: 20

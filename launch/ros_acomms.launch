@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Whether to launch the topside nodes -->
+  <arg name="run_topside" default="false"/>
+
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${time}] [${node}]: ${message}"/>
+
+  <!-- These need to match both vehicle.m and modem.ini -->
+  <arg name="nui_35khz_src" value="0"/>
+  <arg name="nui_10khz_src" value="1"/>
+  <arg name="dep_35khz_src" value="2"/>
+  <arg name="dep_10khz_src" value="3"/>
+  <arg name="deck_10khz_src" value="4"/>
+
+  <!-- These need to match modem.ini -->
+  <arg name="modem_fc0" value="10000"/>
+  <arg name="modem_bw" value="2000"/>
+
+  <!-- Start ros_acomms and any related modem drivers -->
+  <group if="$(arg run_topside)">
+
+    <node name="queue_config_gui" pkg="ros_acomms_shims" type="queue_configuration_gui.py">
+      <rosparam param="topside_codecs" command="load" file="$(find nui_coex_auv_2022)/config/nui_topside_codec_config.yaml"/>
+      <rosparam param="subsea_codecs" command="load" file="$(find nui_coex_auv_2022)/config/nui_subsea_codec_config.yaml"/>
+      <rosparam param="message_queue_nodes" subst_value="True">
+        - name: subsea
+          codec_filename:  "$(find nui_coex_auv_2022)/config/nui_subsea_codec_config.yaml"
+          status_topic: /republished/modem0/queue_status
+          priority_command_topic: /topside/modem0/queue_priority
+          enable_command_topic: /topside/modem0/queue_enable
+        - name: topside
+          codec_filename: "$(find nui_coex_auv_2022)/config/nui_topside_codec_config.yaml"
+          status_topic: /modem1/queue_status
+          priority_command_topic: /modem1/queue_priority
+          enable_command_topic: /modem1/queue_enable
+      </rosparam>
+    </node>
+
+    <group ns="modem1">
+
+      <node name="packet_dispatch" pkg="ros_acomms" type="packet_dispatch_node.py">
+        <rosparam param="packet_codecs" command="load" file="$(find nui_coex_auv_2022)/config/nui_subsea_codec_config.yaml" />
+      </node>
+
+      <node name="message_queue_node" pkg="ros_acomms" type="message_queue_node.py">
+        <rosparam param="packet_codecs" command="load" file="$(find nui_coex_auv_2022)/config/nui_topside_codec_config.yaml" />
+      </node>
+
+      <node name="tdma" pkg="ros_acomms" type="tdma_node.py">
+        <!-- <param name="active_slots" value="3"/> -->
+        <rosparam param="active_slots">[0, 3]</rosparam>
+        <!-- Miniframe bytes defaults to 72 in the code, even though the manual says 96 -->
+        <param name="miniframe_rate" value="1"/>
+        <param name="maximum_miniframe_bytes" value="72"/>
+        <!-- Max dataframe bytes: rate 1 => 192; rate 3 => 512; rate 5 => 2048 -->
+        <param name="dataframe_rate" value="3"/>
+        <param name="maximum_dataframe_bytes" value="512"/>
+
+        <rosparam command="load" file="$(find nui_coex_auv_2022)/config/tdma_node.yaml"/>
+      </node>
+
+      <node name="modem_sim_node" pkg="ros_acomms" type="modem_sim_node.py">
+        <param name="center_frequency_hz" value="$(arg modem_fc0)" type="int" />
+        <param name="bandwidth_hz" value="$(arg modem_bw)" type="int" />
+        <param name="SRC" value="$(arg dep_10khz_src)" type="int" />
+        <param name="modem_location_source" value="local_service" />
+      </node>
+
+      </group>  <!-- topside vehicle_comms -->
+    </group> <!-- modem 1 namespace -->
+  </group>  <!-- run_topside-->
+
+  <!-- Subsea is mostly the same as topside, with a few exceptions:
+      * packet_dispatch and message_queue_node use complimentary configs
+      * simulation includes nodes that simulate performance / packet loss / etc.
+      -->
+  <group unless="$(arg run_topside)">
+
+    <group ns="modem0">
+
+      <node name="packet_dispatch" pkg="ros_acomms" type="packet_dispatch_node.py">
+        <rosparam param="packet_codecs" command="load" file="$(find nui_coex_auv_2022)/config/nui_topside_codec_config.yaml" />
+      </node>
+
+      <node name="message_queue_node" pkg="ros_acomms" type="message_queue_node.py">
+        <rosparam param="packet_codecs" command="load" file="$(find nui_coex_auv_2022)/config/nui_subsea_codec_config.yaml" />
+      </node>
+
+      <node name="tdma" pkg="ros_acomms" type="tdma_node.py">
+        <!-- <param name="active_slots" value="2"/> -->
+        <rosparam param="active_slots">[1, 2, 4, 5]</rosparam> -->
+        <param name="miniframe_rate" value="1"/>
+        <!-- this defaults to 72 in the code, even though the manual says 96 (same for all rates)-->
+        <param name="maximum_miniframe_bytes" value="72"/>
+        <param name="dataframe_rate" value="5"/>
+        <!-- Max dataframe bytes: rate 1 => 192; rate 3 => 512; rate 5 => 2048 -->
+        <param name="maximum_dataframe_bytes" value="2048"/>
+        <rosparam command="load" file="$(find nui_coex_auv_2022)/config/tdma_node.yaml"/>
+      </node>
+
+      <node name="modem_sim_node" pkg="ros_acomms" type="modem_sim_node.py">
+        <param name="center_frequency_hz" value="$(arg modem_fc0)" type="int" />
+        <param name="bandwidth_hz" value="$(arg modem_bw)" type="int" />
+        <param name="SRC" value="$(arg nui_10khz_src)" type="int" />
+        <param name="modem_location_source" value="local_service" />
+      </node>
+
+    </group> <!-- modem 0 namespace -->
+  </group>  <!-- run_subsea-->
+
+  <!-- additional nodes in support of simulating comms -->
+  <group if="$(arg run_topside)">
+    <node name="sim_packet_performance_node" pkg="ros_acomms" type="sim_packet_performance_node.py" />
+    <node name="platform_location_node" pkg="ros_acomms" type="platform_location_node.py"  />
+    <node name="sim_transmission_loss_node" pkg="ros_acomms" type="sim_transmission_loss_node.py"  >
+      <param name="water_depth" value="20" type="int" />
+      <param name="bellhop_arrivals" value="false" type="bool" />
+    </node>
+  </group>
+
+</launch>

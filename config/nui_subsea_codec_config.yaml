@@ -1,0 +1,139 @@
+- codec_name: default
+  match_src: []
+  match_dest: []
+  except_src: []
+  except_dest: []
+  packet_codec: ros
+  miniframe_header: [0xac]
+  dataframe_header: []
+  remove_headers: true
+  message_codecs:
+    - id: 4
+      message_codec: default
+      subscribe_topic: "/modem0/queue_status"
+      publish_topic: "/republished/modem0/queue_status"
+      ros_type: "ros_acomms/QueueStatus"
+      default_dest: 1
+      queue_order: lifo
+      queue_maxsize: 1
+      is_active: true
+      allow_fragmentation: false
+      priority: 80
+      fields:
+        queue_summaries:
+          codec: variable_len_array
+          max_length: 50
+          element_type: msg
+          element_params:
+            ros_type: ros_acomms/QueueSummary
+            fields:
+              queue_id:
+                codec: integer
+                min_value: 0
+                max_value: 255
+              priority:
+                codec: integer
+                min_value: 0
+                max_value: 255
+              enabled:
+                codec: bool
+              message_count:
+                codec: integer
+                min_value: 0
+                max_value: 255
+
+    - id: 11
+      message_codec: default
+      subscribe_topic: "/nui/coexploration/quadtree/metadata"
+      publish_topic: "/republished/nui/coexploration/quadtree/metadata"
+      ros_type: "coexploration_msgs/QuadtreeMetadata"
+      default_dest: 1
+      queue_order: lifo
+      queue_maxsize: 1
+      is_active: true
+      allow_fragmentation: true
+      priority: 40
+      fields:
+        num_points:
+          codec: integer
+          min_value: 0
+          max_value: 2147483600
+        horizontal_resolution:
+          codec: float
+          min_value: 0
+          max_value: 500
+          precision: 1
+        vertical_resolution:
+          codec: float
+          min_value: 0
+          max_value: 500
+          precision: 1
+        send_levels:
+          codec: integer
+          min_value: 0
+          max_value: 8
+    - id: 14
+      message_codec: default
+      subscribe_topic: "/nui/coexploration/quadtree/sender/tx_data"
+      publish_topic: "/republished/nui/coexploration/quadtree/sender/tx_data"
+      ros_type: "ds_acomms_msgs/ModemData"
+      default_dest: 1
+      queue_order: fifo
+      queue_maxsize: 100
+      is_active: true
+      allow_fragmentation: false
+      priority: 30
+      fields:
+        payload:
+          codec: bytes
+          max_length: 4095
+
+    - id: 20
+      message_codec: default
+      subscribe_topic: "/nui/coexploration/progressive_imagery/sender/tx_data"
+      publish_topic: "/republished/nui/coexploration/progressive_imagery/sender/tx_data"
+      ros_type: "ds_acomms_msgs/ModemData"
+      default_dest: 1
+      queue_order: fifo
+      queue_maxsize: 100
+      is_active: true
+      allow_fragmentation: true
+      priority: 30
+      fields:
+        payload:
+          codec: bytes
+          max_length: 255  # A smaller value is encoded into the .proto
+    - id: 22
+      message_codec: default
+      subscribe_topic: "/nui/coexploration/progressive_imagery/transfer_progress"
+      publish_topic: "/republished/nui/coexploration/progressive_imagery/transfer_progress"
+      ros_type: "progressive_imagery/TransferProgress"
+      default_dest: 1
+      queue_order: lifo
+      queue_maxsize: 1
+      is_active: true
+      allow_fragmentation: false
+      priority: 45
+      fields:
+        entirely_unsent_images:
+          codec: integer
+          min_value: 0
+          max_value: 64
+        next_actions:
+          codec: variable_len_array
+          max_length: 20
+          element_type: msg
+          element_params:
+            ros_type: "progressive_imagery/ImageTxAction"
+            fields:
+              image_id:
+                codec: uint32
+              fraction_goal:
+                codec: float
+                min_value: 0
+                max_value: 1
+                precision: 45
+        sent_but_unacked_fragments:
+          codec: integer
+          min_value: 0
+          max_value: 64

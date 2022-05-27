@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Whether to launch the topside nodes -->
+  <arg name="run_topside" default="false"/>
+  <arg name="log_path" default="/data/coex"/>
+
+  <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${time}] [${node}]: ${message}"/>
+
+  <!-- start the coexploration utilities -->
+  <include file="$(find nui_coex_auv_2022)/launch/quadtree.launch">
+    <arg name="run_topside" value="$(arg run_topside)"/>
+    <arg name="quadtree_rx_grid_directory" value="$(arg log_path)/rx_grids"/>
+  </include>
+
+  <include file="$(find nui_coex_auv_2022)/launch/progressive_imagery.launch">
+    <arg name="pi_receive_directory" value="$(arg log_path)/pi_data/rx"/>
+    <!-- TODO: set this up for NUI! -->
+    <arg name="pi_send_directory" value="$(arg log_path)/pi_data/tx"/>
+    <arg name="saved_image_directory" value="$(arg log_path)/cam"/>
+    <arg name="run_topside" value="$(arg run_topside)"/>
+  </include>
+
+  <!-- Start ros_acomms shims for managing queues-->
+  <group if="$(arg run_topside)">
+    <node name="topside_queue_monitor" pkg="ros_acomms_shims" type="queue_monitor.py" output="screen">
+      <rosparam param="codec_config" command="load" file="$(find nui_coex_auv_2022)/config/nui_topside_codec_config.yaml"/>
+      <rosparam param="background_data" command="load" file="$(find nui_coex_auv_2022)/config/topside_queue_monitor.yaml"/>
+      <remap from="queue_status" to="/modem1/queue_status"/>
+    </node>
+  </group>  <!-- run_topside-->
+
+  <group unless="$(arg run_topside)">
+    <node name="subsea_queue_monitor" pkg="ros_acomms_shims" type="queue_monitor.py" output="screen" >
+      <rosparam param="codec_config" command="load" file="$(find nui_coex_auv_2022)/config/nui_subsea_codec_config.yaml"/>
+      <rosparam param="background_data" command="load" file="$(find nui_coex_auv_2022)/config/subsea_queue_monitor.yaml"/>
+      <remap from="queue_status" to="/modem0/queue_status"/>
+    </node>
+  </group>  <!-- run_subsea-->
+
+</launch>

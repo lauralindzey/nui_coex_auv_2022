@@ -1,0 +1,25 @@
+repositories:
+  coexploration:
+    type: git
+    url: git@bitbucket.org:whoidsl/coexploration.git
+    version: nui_cruise
+  ds_msgs:
+    type: git
+    url: ssh://git@bitbucket.org/whoidsl/ds_msgs
+    version: master
+  progressive_imagery:
+    type: git
+    url: git@bitbucket.org:whoidsl/progressive_imagery.git
+    version: master
+  ros_acomms:
+    type: git
+    url: https://git.whoi.edu/acomms/ros_acomms.git
+    version: master
+  sonardyne_msgs:
+    type: git
+    url: git@github.com:lauralindzey/sonardyne_msgs.git
+    version: noetic
+  sonardyne_usbl:
+    type: git
+    url: git@github.com:lauralindzey/sonardyne_usbl.git
+    version: noetic

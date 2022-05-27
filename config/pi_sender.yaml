@@ -1,0 +1,18 @@
+# See documentation for dsl::progressive_imagery::ManagerSenderConfiguration
+image_filename_regex: "^image_([0-9]*)\\.[a-zA-Z]{3,4}$"
+preprocessor_defaults: # dsl::progressive_imagery::PreProcessorConfiguration
+  max_width: 1920
+  max_height: 1080
+  make_grayscale: true
+compressor_defaults: # dsl::progressive_imagery::ProgressiveCompressorConfiguration
+  progression_order: 0 # LRCP = 0, RLCP = 1
+  number_of_resolutions: 6
+  number_of_layers: 10
+  max_approx_bytes: 20480
+  min_approx_bytes: 640
+send_existing_images: true
+preprocess_subfolder: "preprocess"
+pass1_fraction: 0.2
+
+transfer_progress:
+  number_of_next_actions: 20

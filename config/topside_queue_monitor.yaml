@@ -1,0 +1,8 @@
+    - publish_topic: "/topside/coexploration/quadtree/receiver/tx_data"
+      service: "/topside/coexploration/quadtree/receiver/data_request"
+      num_bytes: 240
+      goal_length: 8
+    - publish_topic: "/topside/coexploration/progressive_imagery/receiver/tx_data"
+      service: "/topside/coexploration/progressive_imagery/receiver/data_request"
+      num_bytes: 245
+      goal_length: 8

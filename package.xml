@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>nui_coex_auv_2022</name>
+  <version>0.1.0</version>
+  <description>Example launch files for running the CoExploration utilities with data collected by NUI. </description>
+
+
+  <maintainer email="nobody@nowhere.com">NONE</maintainer>
+
+  <license>BSD</license>
+
+  <author email="lindzey@uw.edu">Laura lindzey</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

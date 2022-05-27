@@ -1,0 +1,6 @@
+horizontal_resolution: 1.0
+vertical_resolution: 0.1
+min_stream_level: 4
+max_stream_level: 7
+send_levels: 4
+send_delay: 20

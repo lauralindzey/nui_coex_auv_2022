@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!-- Launch file for progressive imagery nodes + GUIs -->
+<launch>
+  <!-- Whether to launch the topside nodes -->
+  <arg name="run_topside" default="false"/>
+
+  <arg name="pi_receive_directory"/>
+  <arg name="pi_send_directory"/>
+  <arg name="saved_image_directory"/>
+
+  <group if="$(arg run_topside)">
+    <node name="pi_receiver" pkg="progressive_imagery" type="receiver" output="screen">
+      <rosparam command="load" file="$(find nui_coex_auv_2022)/config/pi_receiver.yaml" />
+      <!-- dsl::progressive_imagery::ManagerCommonConfiguration -->
+      <param name="common/img_dir" value="$(arg pi_receive_directory)"/>
+
+      <remap from="~/incoming_data" to="/republished/nui/coexploration/progressive_imagery/sender/tx_data"/>
+      <remap from="~/outgoing_data" to="/topside/coexploration/progressive_imagery/receiver/data_request"/>
+      <remap from="~/received_status" to="/topside/coexploration/progressive_imagery/received_status"/>
+      <remap from="~/updated_image_event" to="/topside/coexploration/progressive_imagery/updated_image_event"/>
+    </node>
+
+    <node name="pi_gui" pkg="image_utils" type="progressive_imagery_gui.py" output="screen">
+      <remap from="~/sender_progress" to="/republished/nui/coexploration/progressive_imagery/transfer_progress"/>
+      <remap from="~/receiver_status" to="/topside/coexploration/progressive_imagery/received_status"/>
+      <remap from="~/image_event" to="/topside/coexploration/progressive_imagery/updated_image_event"/>
+      <remap from="~/image_goals" to="/topside/coexploration/progressive_imagery/queue_update"/>
+    </node>
+  </group>  <!-- run_topside group -->
+
+  <group unless="$(arg run_topside)">
+    <group ns="nui/cameras/down">
+      <!-- Node that converts from the NUI video streams to a ROS topic -->
+	    <!--
+      <node pkg="video_stream_opencv" type="video_stream" name="nui_cam_stream" output="screen">
+        <remap from="camera" to="image_raw" />
+        <rosparam command="load" file="$(find nui_coex_auv_2022)/config/video_stream.yaml"/>
+      </node>
+	    -->
+      <!-- save every Image to a file-->
+      <!--
+      <node pkg="image_view" type="image_saver" name="down_image_saver" output="screen">
+        <param name="filename_format" value="$(arg saved_image_directory)/image_%06d.jpg"/>
+        <remap from="image" to="image_raw"/>
+      </node>
+      -->
+    </group>
+    <!-- Copy requested images to transmit directory -->
+    <node pkg="image_utils" type="nui_photoproc.py" name="nui_photoproc" output="screen">
+      <param name="capture_image_dir" value="$(arg saved_image_directory)"/>
+      <param name="transmit_image_dir" value="$(arg pi_send_directory)"/>
+      <remap from="~/requested_image_time" to="/republished/topside/requested_image_time"/>
+    </node>
+
+
+    <node name="pi_sender" pkg="progressive_imagery" type="sender" output="screen">
+      <!-- the common ns is dsl::progressive_imagery::ManagerCommonConfiguration -->
+      <!-- LEL: Moving this from yaml to roslaunch so we can use project-relative
+	        directories. For now, putting data in with code .... yuck.
+	        NB: Can't be in test/data because that'll mess up the build. -->
+      <param name="common/img_dir" value="$(arg pi_send_directory)"/>
+      <rosparam command="load" file="$(find nui_coex_auv_2022)/config/pi_sender.yaml" />
+      <remap from="~/outgoing_data" to="/nui/coexploration/progressive_imagery/sender/data_request"/>
+      <remap from="~/incoming_data" to="/republished/topside/coexploration/progressive_imagery/receiver/tx_data"/>
+      <remap from="~/transfer_progress" to="/nui/coexploration/progressive_imagery/transfer_progress"/>
+      <remap from="~/queue_update" to="/republished/topside/coexploration/progressive_imagery/queue_update"/>
+    </node>
+  </group>  <!-- end run_subsea -->
+</launch>

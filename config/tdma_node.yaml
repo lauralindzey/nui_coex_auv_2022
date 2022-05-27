@@ -1,0 +1,13 @@
+# Configurations that need to be consistent between all TDMA nodes in the system
+num_slots: 6
+
+# slot_duration_seconds > guard_time_seconds + packet_length_seconds
+# TODO: Appropriate packet length for 8-frame rate-5 flexible data packet?
+# I experimented with the 3.5 kHz on NUI, with ASD=1 and no response to CADRQ
+# (so there was a 2 second wait included in these durations)
+# Rate 1 on 3.5 kHz was 15.2 from CACYC to CAXST
+# Rate 3 on 3.5 KHz was 16.3 from CACYC to CAXST
+# Rate 5 on 3.5 kHz was 15.9 from CACYC to CAXST
+slot_duration_seconds: 20
+guard_time_seconds: 2
+packet_length_seconds: 17

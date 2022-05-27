@@ -1,0 +1,9 @@
+    # Same service call as used in the original plumbing
+    - publish_topic: "/nui/coexploration/quadtree/sender/tx_data"
+      service: "/nui/coexploration/quadtree/sender/data_request"
+      num_bytes: 240
+      goal_length: 16
+    - publish_topic: "/nui/coexploration/progressive_imagery/sender/tx_data"
+      service: "/nui/coexploration/progressive_imagery/sender/data_request"
+      num_bytes: 245
+      goal_length: 8

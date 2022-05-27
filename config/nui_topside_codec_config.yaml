@@ -1,0 +1,146 @@
+- codec_name: default
+  # With this configuration, all received messages are published,
+  # even if the src/dest fields in the CARFP don't match modem IDs.
+  match_src: []
+  match_dest: []
+  except_src: []
+  except_dest: []
+  packet_codec: ros
+  miniframe_header: [0xac]
+  dataframe_header: []
+  remove_headers: true
+  message_codecs:
+    - id: 1
+      message_codec: default
+      subscribe_topic: "encoded_ack"
+      publish_topic: "from_acomms/encoded_ack"
+      ros_type: "ros_acomms/EncodedAck"
+      default_dest: 0
+      queue_order: fifo
+      queue_maxsize: 5
+      is_active: true
+      allow_fragmentation: false
+      priority: 50
+      fields:
+        src:
+          codec: integer
+          min_value: 0
+          max_value: 255
+        dest:
+          codec: integer
+          min_value: 0
+          max_value: 255
+        encoded_ack:
+          codec: bytes
+          max_length: 65535
+    - id: 5
+      message_codec: default
+      subscribe_topic: "/topside/modem0/queue_enable"
+      publish_topic: "/modem0/queue_enable"
+      ros_type: "ros_acomms/QueueEnable"
+      default_dest: 0
+      queue_order: fifo
+      queue_maxsize: 100
+      is_active: true
+      allow_fragmentation: false
+      priority: 95
+      fields:
+        queue_id:
+          codec: integer
+          min_value: 0
+          max_value: 255
+        enable:
+          codec: bool
+    - id: 6
+      message_codec: default
+      subscribe_topic: "/topside/modem0/queue_priority"
+      publish_topic: "/modem0/queue_priority"
+      ros_type: "ros_acomms/QueuePriority"
+      default_dest: 0
+      queue_order: fifo
+      queue_maxsize: 100
+      is_active: true
+      allow_fragmentation: false
+      priority: 95
+      fields:
+        queue_id:
+          codec: integer
+          min_value: 0
+          max_value: 255
+        priority:
+          codec: integer
+          min_value: 0
+          max_value: 100
+
+    - id: 12
+      message_codec: default
+      subscribe_topic: "/topside/coexploration/quadtree/receiver/tx_data"
+      publish_topic: "/republished/topside/coexploration/quadtree/receiver/tx_data"
+      ros_type: "ds_acomms_msgs/ModemData"
+      default_dest: 0
+      queue_order: fifo
+      queue_maxsize: 100
+      is_active: true
+      allow_fragmentation: false
+      priority: 30
+      fields:
+        payload:
+          codec: bytes
+          max_length: 4095
+
+    - id: 21
+      message_codec: default
+      subscribe_topic: "/topside/coexploration/progressive_imagery/receiver/tx_data"
+      publish_topic: "/republished/topside/coexploration/progressive_imagery/receiver/tx_data"
+      ros_type: "ds_acomms_msgs/ModemData"
+      default_dest: 0
+      queue_order: fifo
+      queue_maxsize: 100
+      is_active: true
+      allow_fragmentation: true
+      priority: 30
+      fields:
+        payload:
+          codec: bytes
+          max_length: 255  # A smaller value is encoded into the .proto
+    - id: 23
+      message_codec: default
+      subscribe_topic: "/topside/coexploration/progressive_imagery/queue_update"
+      publish_topic: "/republished/topside/coexploration/progressive_imagery/queue_update"
+      ros_type: "progressive_imagery/QueueAction"
+      default_dest: 0
+      queue_order: fifo
+      queue_maxsize: 5
+      is_active: true
+      allow_fragmentation: false
+      priority: 50
+      fields:
+        queue_action:
+          codec: variable_len_array
+          max_length: 20
+          element_type: msg
+          element_params:
+            ros_type: "progressive_imagery/ImageTxAction"
+            fields:
+              image_id:
+                codec: uint32
+              fraction_goal:
+                codec: float
+                min_value: 0
+                max_value: 1
+                precision: 45
+    - id: 24
+      message_codec: default
+      subscribe_topic: "/topside/requested_image_time"
+      publish_topic: "/republished/topside/requested_image_time"
+      ros_type: "std_msgs/Time"
+      default_dest: 0
+      queue_order: fifo
+      queue_maxsize: 5
+      is_active: true
+      allow_fragmentation: false
+      priority: 50
+      fields:
+        data:
+          codec: rostime
+          epoch_start: 154000000 # QUESTION: Can we make this a paramater that is used for all topics, rather than having to set it here?
