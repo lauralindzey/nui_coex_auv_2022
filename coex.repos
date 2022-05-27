@@ -7,6 +7,10 @@ repositories:
     type: git
     url: ssh://git@bitbucket.org/whoidsl/ds_msgs
     version: master
+  nui_coex_auv_2022:
+    type: git
+    url: git@github.com:lauralindzey/nui_coex_auv_2022.git
+    version: main
   progressive_imagery:
     type: git
     url: git@bitbucket.org:whoidsl/progressive_imagery.git

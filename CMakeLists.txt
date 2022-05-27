@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(nui_config)
-
-add_compile_options(-std=c++11)
+project(nui_coex_auv_2022)
 
 find_package(catkin REQUIRED
   #COMPONENTS
@@ -11,12 +9,12 @@ find_package(catkin REQUIRED
 
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES 
+#  LIBRARIES
 #  CATKIN_DEPENDS
 #  DEPENDS system_lib
 )
 
 install(FILES
-    launch/nui.launch
+    launch/demo_coex.launch
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
