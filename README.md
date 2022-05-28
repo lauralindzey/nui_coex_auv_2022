@@ -28,13 +28,20 @@ Before starting the processes, be sure that the logging directories are set up a
   - /data/coex/pi_data/rx
   - /data/coex/pi_data/tx
 
+If you prefer to put them somewhere else, use the `log_path:=` argument when launching demo_coex.launch.
+
 Then, open 3 terminal windows (in each, run `source ~/coex_ws/devel/setup.bash`):
 * `roscore`
 * `rosparam set use_sim_time true`; `roslaunch nui_coex_auv_2022 demo_coex.launch`
-* `rosbag play TODO`
+* `rosbag play --clock ~/coex_ws/src/nui_coex_auv_2022/data/nui040_survey.bag`
 
 The map will begin streaming automatically.
-In order to stage an image for transmission, TODO
+
+In order to stage an image for transmission, copy it to /data/coex/pi_data/tx. e.g.: `cp ~/coex_ws/src/nui_coex_auv_2022/data/image_001784.tiff /data/coex/pi_data/tx/`
+
+
+To look at the raw pointclouds from the Norbit:
+`rosrun rviz rviz -d ~/coex_ws/src/nui_coex_auv_2022/nui.rviz`
 
 ## User Interfaces
 Launching the above ROS nodes will cause 3 different GUIs to pop up.
