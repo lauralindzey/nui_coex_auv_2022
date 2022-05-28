@@ -15,7 +15,6 @@
 
   <include file="$(find nui_coex_auv_2022)/launch/progressive_imagery.launch">
     <arg name="pi_receive_directory" value="$(arg log_path)/pi_data/rx"/>
-    <!-- TODO: set this up for NUI! -->
     <arg name="pi_send_directory" value="$(arg log_path)/pi_data/tx"/>
     <arg name="saved_image_directory" value="$(arg log_path)/cam"/>
     <arg name="run_topside" value="$(arg run_topside)"/>

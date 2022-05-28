@@ -54,8 +54,8 @@
         <param name="miniframe_rate" value="1"/>
         <param name="maximum_miniframe_bytes" value="72"/>
         <!-- Max dataframe bytes: rate 1 => 192; rate 3 => 512; rate 5 => 2048 -->
-        <param name="dataframe_rate" value="3"/>
-        <param name="maximum_dataframe_bytes" value="512"/>
+        <param name="dataframe_rate" value="5"/>
+        <param name="maximum_dataframe_bytes" value="2048"/>
 
         <rosparam command="load" file="$(find nui_coex_auv_2022)/config/tdma_node.yaml"/>
       </node>
@@ -67,7 +67,6 @@
         <param name="modem_location_source" value="local_service" />
       </node>
 
-      </group>  <!-- topside vehicle_comms -->
     </group> <!-- modem 1 namespace -->
   </group>  <!-- run_topside-->
 

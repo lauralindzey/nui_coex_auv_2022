@@ -7,11 +7,11 @@
 
   <include file="$(find nui_coex_auv_2022)/launch/coexploration.launch">
     <arg name="run_topside" value="true"/>
-    <arg name="quadtree_rx_grid_directory" value="$(arg log_path)/rx_grids"/>
+    <arg name="log_path" value="$(arg log_path)"/>
   </include>
   <include file="$(find nui_coex_auv_2022)/launch/coexploration.launch">
     <arg name="run_topside" value="false"/>
-    <arg name="quadtree_rx_grid_directory" value="$(arg log_path)/rx_grids"/>
+    <arg name="log_path" value="$(arg log_path)"/>
   </include>
 
 
